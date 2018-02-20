@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Creepstagram</string>
+    <string name="screenshot_notification_title">Screenshot saved</string>
+    <string name="screenshot_notification_subtitle">Tap to view your screenshot</string>
+    <string name="running_service_notification_title">Creepstagram is running</string>
+    <string name="running_service_notification_subtitle">Tap here when you stop to stalker</string>
+    <string name="action_save">Save</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_share">Share</string>
+    <string name="screenshot_alt">screenshot</string>
+    <string name="bitmap_error">Ops, something went worng… Please try again.</string>
+    <string name="action_saving">Saving screenshot…</string>
+    <string name="screenshot_saved">Screenshot saved</string>
+    <string name="shortcut_label">Show controllers</string>
+</resources>
