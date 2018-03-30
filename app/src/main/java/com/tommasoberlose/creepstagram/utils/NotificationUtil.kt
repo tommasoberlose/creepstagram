@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
+import com.snatik.storage.Storage
 import com.tommasoberlose.creepstagram.R
 import com.tommasoberlose.creepstagram.constants.GlobalConstants
 import com.tommasoberlose.creepstagram.ui.MainActivity
@@ -32,17 +33,24 @@ object NotificationUtil {
 
   fun showScreenshotNotification(context: Context) {
     val mNotificationManager: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    val mBuilder: NotificationCompat.Builder = NotificationCompat.Builder(context, "service")
+    val mBuilder: NotificationCompat.Builder = NotificationCompat.Builder(context, "overlay")
         .setSmallIcon(R.drawable.ic_stat_screenshot)
-        .setPriority(Notification.PRIORITY_LOW)
         .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
         .setContentTitle(context.getString(R.string.running_service_notification_title))
         .setContentText(context.getString(R.string.running_service_notification_subtitle))
-        .setAutoCancel(false)
         .setStyle(NotificationCompat.BigTextStyle().bigText(context.getString(R.string.running_service_notification_subtitle)))
+        .setAutoCancel(false)
+        .setSound(Uri.parse(""))
+        .setOngoing(true)
+        .setPriority(NotificationCompat.PRIORITY_LOW)
+        .setOnlyAlertOnce(true)
+
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      mNotificationManager.createNotificationChannel(NotificationChannel("service", "Running service notification", NotificationManager.IMPORTANCE_LOW))
+      val channel = NotificationChannel("overlay", "Running service notification", NotificationManager.IMPORTANCE_LOW)
+      channel.setSound(null, null)
+      mNotificationManager.createNotificationChannel(channel)
+      mBuilder.setChannelId("overlay")
     }
 
     val intent = Intent(context, MainActivity::class.java)
@@ -64,6 +72,7 @@ object NotificationUtil {
           .setSmallIcon(R.drawable.ic_stat_screenshot)
           .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
           .setContentTitle(context.getString(R.string.screenshot_notification_title))
+          .setPriority(NotificationCompat.PRIORITY_DEFAULT)
           .setContentText(context.getString(R.string.screenshot_notification_subtitle))
           .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bitmap))
           .setAutoCancel(true)
@@ -72,10 +81,9 @@ object NotificationUtil {
         mNotificationManager.createNotificationChannel(NotificationChannel("util", "Screenshots notification", NotificationManager.IMPORTANCE_DEFAULT))
       }
 
-      val intent = Intent()
-      intent.action = android.content.Intent.ACTION_VIEW
-      val uri = Uri.parse(imagePath)
-      intent.setDataAndType(uri, "image/*")
+      val storage = Storage(context)
+      val intent = Intent(Intent.ACTION_VIEW).setDataAndType(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) android.support.v4.content.FileProvider.getUriForFile(context,context.packageName + ".provider", storage.getFile(imagePath)) else Uri.fromFile(storage.getFile(imagePath)),
+          "image/*").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
       val pi: PendingIntent = PendingIntent.getActivity(context, OPEN_SCREENSHOT_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT)
       mBuilder.setContentIntent(pi)
       mNotificationManager.notify(OPEN_SCREENSHOT_NOTIFICATION_ID, mBuilder.build())

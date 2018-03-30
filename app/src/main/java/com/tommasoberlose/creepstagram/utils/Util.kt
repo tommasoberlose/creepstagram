@@ -11,6 +11,8 @@ import java.util.*
 import android.opengl.ETC1.getHeight
 import android.opengl.ETC1.getWidth
 import android.R.attr.bitmap
+import android.content.Context
+import android.provider.Settings
 import android.view.View
 
 
@@ -18,23 +20,9 @@ import android.view.View
  * Created by tommaso on 09/02/18.
  */
 
-object ScreenshotUtil {
+object Util {
 
-  fun takeScreenshot(view: View): Bitmap? {
-    return try {
-      view.isDrawingCacheEnabled = true
-      view.buildDrawingCache()
-      val b1 = view.drawingCache
-
-      val bitmap = Bitmap.createBitmap(b1)
-      val canvas = Canvas(bitmap)
-      view.draw(canvas)
-      view.isDrawingCacheEnabled = false
-
-      bitmap
-    } catch (e: Throwable) {
-      null
-    }
+  fun canDrawOverlay(context: Context): Boolean {
+    return Settings.canDrawOverlays(context)
   }
-
 }

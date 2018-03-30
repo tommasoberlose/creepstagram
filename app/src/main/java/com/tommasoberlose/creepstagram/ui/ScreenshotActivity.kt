@@ -1,6 +1,6 @@
 package com.tommasoberlose.creepstagram.ui
 
-import android.animation.Animator
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -13,27 +13,26 @@ import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
+import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.tommasoberlose.creepstagram.R
-import com.tommasoberlose.creepstagram.utils.ScreenshotUtil
-import android.view.View
-import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_screenshot.*
 import android.os.Handler
 import android.util.Log
-import com.squareup.picasso.Picasso
-import com.tommasoberlose.creepstagram.components.events.MessageEvent
-import com.tommasoberlose.creepstagram.constants.MessageEventCode
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import android.provider.MediaStore
+import android.support.v4.content.FileProvider
 import android.util.DisplayMetrics
-import android.view.animation.Animation
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.PermissionDeniedResponse
+import com.karumi.dexter.listener.PermissionGrantedResponse
+import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.single.BasePermissionListener
+import com.karumi.dexter.listener.single.PermissionListener
 import com.snatik.storage.Storage
+import com.tommasoberlose.creepstagram.services.OverlayService
 import com.tommasoberlose.creepstagram.utils.NotificationUtil
-import com.tommasoberlose.creepstagram.utils.extensions.expand
 import org.jetbrains.anko.toast
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -66,23 +65,24 @@ class ScreenshotActivity : AppCompatActivity() {
     }
 
     action_save.setOnClickListener {
-      toast(R.string.action_saving)
       if (bitmap != null) {
-        val storage = Storage(this)
-        val path = storage.externalStorageDirectory
-        val newDir = path + File.separator + "screenshot"
-        if (!storage.isDirectoryExists(path)) {
-          storage.createDirectory(newDir)
-        }
+        toast(R.string.action_saving)
+        Dexter.withActivity(this)
+            .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            .withListener(object: BasePermissionListener() {
+              override fun onPermissionGranted(response: PermissionGrantedResponse?) {
+                saveScreenshot()
+              }
 
-        val imagePath = newDir + File.separator + Calendar.getInstance().timeInMillis + ".jpeg"
-        if (storage.createFile(imagePath, Bitmap.createBitmap(bitmap))) {
-          toast(R.string.screenshot_saved)
-          NotificationUtil.showSavedScreenshotNotification(this, imagePath, bitmap)
-          finish()
-        } else {
-          toast(R.string.bitmap_error)
-        }
+              override fun onPermissionRationaleShouldBeShown(permission: PermissionRequest?, token: PermissionToken?) {
+                token!!.continuePermissionRequest()
+              }
+
+              override fun onPermissionDenied(response: PermissionDeniedResponse?) {
+                toast(R.string.bitmap_not_saved)
+              }
+            })
+            .check()
       } else {
         toast(R.string.bitmap_error)
         finish()
@@ -117,10 +117,30 @@ class ScreenshotActivity : AppCompatActivity() {
       }
     }
   }
+  fun saveScreenshot() {
+
+    val storage = Storage(this)
+    val path = storage.externalStorageDirectory
+    val newDir = path + File.separator + "Math Exercises"
+    if (!storage.isDirectoryExists(newDir)) {
+      storage.createDirectory(newDir)
+    }
+
+    val imagePath = newDir + File.separator + Calendar.getInstance().timeInMillis + ".jpeg"
+    try {
+      storage.createFile(imagePath, Bitmap.createBitmap(bitmap))
+      NotificationUtil.showSavedScreenshotNotification(this, imagePath, bitmap)
+      finish()
+    } catch (e: Exception) {
+      e.printStackTrace()
+      toast(R.string.bitmap_error)
+    }
+  }
 
   override fun onDestroy() {
-    super.onDestroy()
     tearDownMediaProjection()
+    startService(Intent(this, OverlayService::class.java))
+    super.onDestroy()
   }
 
   private fun setUpVirtualDisplay() {
@@ -217,5 +237,6 @@ class ScreenshotActivity : AppCompatActivity() {
   companion object {
     const val TAG = "ScreenCaptureFragment"
     const val REQUEST_MEDIA_PROJECTION = 3
+    const val REQUEST_STORAGE_PERMISSION = 4
   }
 }

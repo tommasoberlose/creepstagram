@@ -25,13 +25,17 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES"/>
+            </intent-filter>
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
         <activity
             android:name=".ui.ScreenshotActivity"
+            android:autoRemoveFromRecents="true"
+            android:excludeFromRecents="true"
             android:theme="@style/AppTheme.Screenshot" />
 
         <service
@@ -40,6 +44,32 @@
             android:exported="true" />
 
         <activity android:name=".ui.intro.IntroActivity" />
+
+        <service
+            android:name=".services.QuickSettingsService"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@drawable/ic_stat_screenshot"
+            android:label="@string/tile_title"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action
+                    android:name="android.service.quicksettings.action.QS_TILE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="true" />
+        </service>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
     </application>
 
 </manifest>
