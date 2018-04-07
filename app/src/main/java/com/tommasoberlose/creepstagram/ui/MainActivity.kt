@@ -65,8 +65,6 @@ class MainActivity : AppCompatActivity() {
     footer_logo.setOnClickListener {
       it.animate().rotation(it.rotation + 180).start()
     }
-
-//    startActivity(Intent(this, IntroActivity::class.java))
   }
 
   override fun onResume() {
@@ -75,14 +73,22 @@ class MainActivity : AppCompatActivity() {
   }
 
   fun updateUI() {
-    if (!Settings.canDrawOverlays(this)) {
+    val canIDrawOverlay = Settings.canDrawOverlays(this)
+    main_title.text = getString(if (!canIDrawOverlay) R.string.ask_overlay_title else R.string.main_page_title)
+    main_subtitle.text = getString(if (!canIDrawOverlay) R.string.ask_overlay_subtitle else R.string.main_page_subtitle)
+    action_request_permission.text = getString(if (!canIDrawOverlay) R.string.ask_overlay_button_request else R.string.shortcut_label)
+    group_bg.background = getDrawable(if (!canIDrawOverlay) R.drawable.gradient_bg_disabled else R.drawable.gradient_background)
+    name.setTextColor(getColor(if (!canIDrawOverlay) R.color.colorPrimaryDisabled else R.color.colorAccent))
+    if (canIDrawOverlay) {
+      action_request_permission.setOnClickListener {
+        startService(Intent(this, OverlayService::class.java))
+        finish()
+      }
+    } else {
       action_request_permission.setOnClickListener {
         val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + applicationContext.packageName))
         startActivityForResult(intent, REQUEST_OVERLAY_PERMISSION_CODE)
       }
-      overlay_permission_request_container.expand()
-    } else {
-      overlay_permission_request_container.collapse()
     }
   }
 

@@ -5,4 +5,6 @@
     <color name="colorAccent">#E33B16</color>
     <color name="overlay_background">#bb000000</color>
     <color name="status_bar_color">#19000000</color>
+    <color name="colorPrimaryDisabled">#6A1EDE</color>
+    <color name="colorAccentDisabled">#00FFE3</color>
 </resources>

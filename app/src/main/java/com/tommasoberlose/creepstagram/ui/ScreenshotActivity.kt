@@ -36,6 +36,7 @@ import com.tommasoberlose.creepstagram.utils.NotificationUtil
 import org.jetbrains.anko.toast
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
 class ScreenshotActivity : AppCompatActivity() {
@@ -140,6 +141,7 @@ class ScreenshotActivity : AppCompatActivity() {
   override fun onDestroy() {
     tearDownMediaProjection()
     startService(Intent(this, OverlayService::class.java))
+    cacheDir.listFiles().filter { it.name.startsWith("screenshot") }.forEach { it.delete() }
     super.onDestroy()
   }
 
@@ -215,12 +217,21 @@ class ScreenshotActivity : AppCompatActivity() {
     }
   }
 
-  fun getImageUri(inContext: Context, inImage: Bitmap): Uri {
-    val bytes = ByteArrayOutputStream()
-    inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
+  fun getImageUri(inContext: Context, inImage: Bitmap): Uri? {
+    return try {
+      val cachePath = File(inContext.cacheDir, "images")
+      cachePath.mkdirs()
+      val stream = FileOutputStream(String.format("%s/%s", cachePath, "screenshot.png"))
+      inImage.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+      stream.close()
 
-    val path = MediaStore.Images.Media.insertImage(inContext.contentResolver, inImage, "Title", null)
-    return Uri.parse(path)
+      val imagePath = File(inContext.cacheDir, "images")
+      val newFile = File(imagePath, "screenshot.png")
+      FileProvider.getUriForFile(inContext, "com.tommasoberlose.creepstagram.provider", newFile)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      null
+    }
   }
 
   private fun initShareIntent(context: Context, bitmap: Bitmap?) {

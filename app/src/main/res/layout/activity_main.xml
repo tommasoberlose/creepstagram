@@ -30,23 +30,54 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:id="@+id/group_bg"
             android:background="@drawable/gradient_background">
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:id="@+id/overlay_permission_request_container"
+                android:layout_margin="32dp"
                 android:orientation="vertical">
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:id="@+id/main_title"
                     android:textColor="@android:color/white"
-                    android:text="Ask to overlay"/>
-                <Button
+                    android:text="@string/ask_overlay_title"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textSize="18sp"
+                    android:alpha="0.8"
+                    android:id="@+id/main_subtitle"
+                    android:textColor="@android:color/white"
+                    android:text="@string/ask_overlay_subtitle"/>
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Request"
-                    android:id="@+id/action_request_permission"/>
+                    android:orientation="vertical"
+                    android:padding="8dp"
+                    android:layout_gravity="end">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:textAppearanceButton"
+                        android:textColor="@android:color/white"
+                        android:layout_gravity="end"
+                        android:layout_marginTop="32dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:text="@string/ask_overlay_button_request"
+                        android:id="@+id/action_request_permission"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:layout_marginTop="4dp"
+                        android:background="@android:color/white"/>
+                </LinearLayout>
             </LinearLayout>
 
             <ImageView

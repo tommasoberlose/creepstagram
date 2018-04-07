@@ -7,4 +7,5 @@
     <external-path
         name="external_storage_root"
         path="."/>
+    <cache-path name="shared_images" path="images/"/>
 </paths>
