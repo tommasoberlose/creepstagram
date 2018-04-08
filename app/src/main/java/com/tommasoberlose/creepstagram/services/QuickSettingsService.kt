@@ -26,7 +26,7 @@ class QuickSettingsService : TileService() {
     tile.icon = Icon.createWithResource(this, R.drawable.ic_stat_screenshot)
     tile.label = getString(R.string.shortcut_label)
     tile.contentDescription = getString(R.string.app_name)
-    tile.state = if (pref.getBooleanValue(GlobalConstants.PREFERENCE_IS_OVERLAY_SERVICE_RUNNING, false)) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
+    tile.state = Tile.STATE_ACTIVE
     tile.updateTile()
 
     requestListeningState(this, ComponentName(this, QuickSettingsService::class.java))
@@ -37,7 +37,7 @@ class QuickSettingsService : TileService() {
     val shortcutIntent = Intent(this, MainActivity::class.java)
     shortcutIntent.action = GlobalConstants.SHOW_CONTROLLERS_ACTION
     startActivityAndCollapse(shortcutIntent)
-    tile.state = Tile.STATE_INACTIVE
+    tile.state = Tile.STATE_ACTIVE
     tile.updateTile()
   }
 
